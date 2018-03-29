@@ -1,0 +1,18 @@
+#!/bin/bash
+
+emptyPages=$(gs -o - -sDEVICE=inkcov $1 | grep -B 1 "^ 0.000[01][[:digit:]]  0.000[01][[:digit:]]  0.000[01][[:digit:]]  0.000[01]" | grep 'Page' | awk '{print $2}')
+numPages=$(pdfinfo $1 | grep Pages | awk '{print $2}')
+nonEmptyPages=()
+echo This pdf has $numPages pages
+echo These pages are empty: $emptyPages
+
+for i in `seq 1 $numPages`; do
+	if ! [[ $emptyPages =~ (^|[[:space:]])$i($|[[:space:]]) ]]
+  	then
+        	nonEmptyPages+=$(echo $i' ') 
+	fi
+done
+        
+echo These pages are not empty: $nonEmptyPages
+
+pdftk $1 cat $(echo $nonEmptyPages) output $2
