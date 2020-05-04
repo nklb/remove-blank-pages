@@ -1,5 +1,9 @@
 #!/bin/bash
 
+[ $# -eq 2 ] || { echo >&2 "This script requires exactly two arguments. Use it as follows: ./remove-blank-pages input-with-blank-pages.pdf output-without-blank-pages.pdf. Aborting."; exit 1; }
+command $# -eq 2-v gs >/dev/null 2>&1 || { echo >&2 "This script requires ghostscript but it's not installed.  Aborting."; exit 1; }
+command -v pdftk >/dev/null 2>&1 || { echo >&2 "This script requires pdftk but it's not installed.  Aborting."; exit 1; }
+
 emptyPages=$(gs -o - -sDEVICE=inkcov $1 | grep -B 1 "^ 0.000[01][[:digit:]]  0.000[01][[:digit:]]  0.000[01][[:digit:]]  0.000[01]" | grep 'Page' | awk '{print $2}')
 numPages=$(pdfinfo $1 | grep Pages | awk '{print $2}')
 nonEmptyPages=()
